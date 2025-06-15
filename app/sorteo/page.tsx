@@ -10,8 +10,8 @@ export default function SorteoPage() {
   // --- Variables para los puestos manuales (NO son estados de UI) ---
   // Define aquí los números que quieres para el primer y segundo puesto.
   // Si no quieres un puesto manual, déjalo como 'undefined' o 'null'.
-  const primerPuestoDefinido: number | undefined | null = null; // Ejemplo: El número 1010 será el primer ganador
-  const segundoPuestoDefinido: number | undefined | null = null; // Ejemplo: El número 2020 será el segundo ganador
+  const primerPuestoDefinido: number | undefined  = undefined; // Ejemplo: El número 1010 será el primer ganador
+  const segundoPuestoDefinido: number | undefined = undefined; // Ejemplo: El número 2020 será el segundo ganador
   // Si no quieres segundo puesto manual:
   // const segundoPuestoDefinido: number | undefined = undefined; 
   // ------------------------------------------------------------------
