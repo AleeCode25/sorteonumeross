@@ -54,9 +54,15 @@ export default function HomePage() {
   const handleCopyText = () => {
     if (generatedNumbers.length > 0) {
       // Unimos los números con comas para copiarlos
-      const textToCopy = "Tus números para el sorteo son: " + generatedNumbers.join(', ');
-      navigator.clipboard.writeText(textToCopy);
-      alert('¡Números copiados al portapapeles!');
+
+      if(generatedNumbers.length === 1) {
+        const textToCopy = "Tu número para el sorteo es: " + generatedNumbers[0];
+        navigator.clipboard.writeText(textToCopy);
+        return alert('¡Número copiado al portapapeles!');
+      }
+        const textToCopy = "Tus números para el sorteo son: " + generatedNumbers.join(', ');
+        navigator.clipboard.writeText(textToCopy);
+        return alert('¡Números copiados al portapapeles!');
     }
   };
 

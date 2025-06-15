@@ -6,6 +6,16 @@ import Confetti from 'react-confetti';
 
 export default function SorteoPage() {
   const [cantidadGanadores, setCantidadGanadores] = useState<string>('1');
+  
+  // --- Variables para los puestos manuales (NO son estados de UI) ---
+  // Define aquí los números que quieres para el primer y segundo puesto.
+  // Si no quieres un puesto manual, déjalo como 'undefined' o 'null'.
+  const primerPuestoDefinido: number | undefined | null = null; // Ejemplo: El número 1010 será el primer ganador
+  const segundoPuestoDefinido: number | undefined | null = null; // Ejemplo: El número 2020 será el segundo ganador
+  // Si no quieres segundo puesto manual:
+  // const segundoPuestoDefinido: number | undefined = undefined; 
+  // ------------------------------------------------------------------
+
   const [ganadores, setGanadores] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +38,25 @@ export default function SorteoPage() {
       return;
     }
 
+    // --- Validación de los puestos manuales (sigue siendo importante) ---
+    if (primerPuestoDefinido !== undefined && !Number.isInteger(primerPuestoDefinido)) {
+        setError('El primer puesto manual definido debe ser un número entero válido.');
+        setIsLoading(false);
+        return;
+    }
+    if (segundoPuestoDefinido !== undefined && !Number.isInteger(segundoPuestoDefinido)) {
+        setError('El segundo puesto manual definido debe ser un número entero válido.');
+        setIsLoading(false);
+        return;
+    }
+    // Si ambos puestos manuales son iguales y distintos de vacío
+    if (primerPuestoDefinido !== undefined && segundoPuestoDefinido !== undefined && primerPuestoDefinido === segundoPuestoDefinido) {
+        setError('El primer y segundo puesto manual no pueden ser el mismo número.');
+        setIsLoading(false);
+        return;
+    }
+    // --------------------------------------------------------------------
+
     try {
       // 1. Creamos el objeto de audio UNA SOLA VEZ y lo guardamos en la referencia
       if (!countdownAudioRef.current) {
@@ -43,23 +72,30 @@ export default function SorteoPage() {
           countdownAudioRef.current.currentTime = 0;
           countdownAudioRef.current.play();
         }
-        
+
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
       setCountdown(null);
-      
+
       // 3. Detenemos el sonido del conteo definitivamente
       if (countdownAudioRef.current) {
         countdownAudioRef.current.pause();
         countdownAudioRef.current.currentTime = 0;
       }
 
+      // Preparamos el cuerpo de la solicitud con los puestos manuales definidos por variable
+      const requestBody = {
+        cantidadGanadores: cantidadNumerica,
+        primerPuestoManual: primerPuestoDefinido, // Usamos la variable constante
+        segundoPuestoManual: segundoPuestoDefinido, // Usamos la variable constante
+      };
+
       const response = await fetch('/api/realizar-sorteo', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ cantidadGanadores: cantidadNumerica }),
+        body: JSON.stringify(requestBody), 
       });
 
       const data = await response.json();
@@ -70,7 +106,7 @@ export default function SorteoPage() {
 
       setGanadores(data.ganadores);
       setShowConfetti(true);
-      
+
       // Reproducimos el sonido del ganador (este sí puede ser nuevo cada vez)
       new Audio('/sounds/ganador.mp3').play();
 
@@ -107,8 +143,18 @@ export default function SorteoPage() {
           <>
             <div style={styles.inputGroup}>
               <label htmlFor="cantidad" style={styles.label}>Cantidad de Ganadores:</label>
-              <input id="cantidad" type="number" value={cantidadGanadores} onChange={(e) => setCantidadGanadores(e.target.value)} style={styles.input} min="1" />
+              <input
+                id="cantidad"
+                type="number"
+                value={cantidadGanadores}
+                onChange={(e) => setCantidadGanadores(e.target.value)}
+                style={styles.input}
+                min="1"
+              />
             </div>
+
+            {/* Los campos para los puestos manuales YA NO ESTÁN VISIBLES AQUÍ */}
+
             <div style={styles.buttonGroup}>
               <button onClick={handleRealizarSorteo} disabled={isLoading} style={styles.button}>Sortear</button>
             </div>
