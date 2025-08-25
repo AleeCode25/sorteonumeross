@@ -7,13 +7,13 @@ import Confetti from 'react-confetti';
 export default function SorteoPage() {
   const [cantidadGanadores, setCantidadGanadores] = useState<string>('1');
   
-  // --- Variables para los puestos manuales (NO son estados de UI) ---
-  // Define aquí los números que quieres para el primer y segundo puesto.
-  // Si no quieres un puesto manual, déjalo como 'undefined' o 'null'.
-  const primerPuestoDefinido: number | undefined  = 65612; // Ejemplo: El número 1010 será el primer ganador
-  const segundoPuestoDefinido: number | undefined = 27048; // Ejemplo: El número 2020 será el segundo ganador
-  // Si no quieres segundo puesto manual:
-  // const segundoPuestoDefinido: number | undefined = undefined; 
+  // --- CAMBIO: Define aquí los números para los 5 puestos ---
+  // Si no quieres fijar un puesto, déjalo como 'undefined' o 'null'.
+  const primerPuestoDefinido: number | undefined  = 53408; // Ejemplo
+  const segundoPuestoDefinido: number | undefined = 48413; // Ejemplo
+  const tercerPuestoDefinido: number | undefined = 43063;  // Ejemplo
+  const cuartoPuestoDefinido: number | undefined = 81495;  // Ejemplo
+  const quintoPuestoDefinido: number | undefined = 73399; // Ejemplo (este no se usará)
   // ------------------------------------------------------------------
 
   const [ganadores, setGanadores] = useState<number[]>([]);
@@ -22,7 +22,6 @@ export default function SorteoPage() {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
 
-  // La referencia para nuestro "reproductor" único de audio
   const countdownAudioRef = useRef<HTMLAudioElement | null>(null);
 
   const handleRealizarSorteo = async () => {
@@ -38,56 +37,61 @@ export default function SorteoPage() {
       return;
     }
 
-    // --- Validación de los puestos manuales (sigue siendo importante) ---
-    if (primerPuestoDefinido !== undefined && !Number.isInteger(primerPuestoDefinido)) {
-        setError('El primer puesto manual definido debe ser un número entero válido.');
-        setIsLoading(false);
-        return;
+    // --- CAMBIO: Validación mejorada para los 5 puestos ---
+    const puestosManualesDefinidos = [
+        primerPuestoDefinido,
+        segundoPuestoDefinido,
+        tercerPuestoDefinido,
+        cuartoPuestoDefinido,
+        quintoPuestoDefinido
+    ].filter(p => p !== undefined && p !== null);
+
+    // Validar que todos sean números
+    for (const num of puestosManualesDefinidos) {
+        if (typeof num !== 'number' || !Number.isInteger(num)) {
+            setError('Todos los puestos manuales definidos deben ser números enteros válidos.');
+            setIsLoading(false);
+            return;
+        }
     }
-    if (segundoPuestoDefinido !== undefined && !Number.isInteger(segundoPuestoDefinido)) {
-        setError('El segundo puesto manual definido debe ser un número entero válido.');
-        setIsLoading(false);
-        return;
-    }
-    // Si ambos puestos manuales son iguales y distintos de vacío
-    if (primerPuestoDefinido !== undefined && segundoPuestoDefinido !== undefined && primerPuestoDefinido === segundoPuestoDefinido) {
-        setError('El primer y segundo puesto manual no pueden ser el mismo número.');
+    
+    // Validar que no haya duplicados
+    const manualesSinDuplicados = new Set(puestosManualesDefinidos);
+    if (manualesSinDuplicados.size !== puestosManualesDefinidos.length) {
+        setError('Los puestos manuales definidos no pueden tener números repetidos.');
         setIsLoading(false);
         return;
     }
     // --------------------------------------------------------------------
 
     try {
-      // 1. Creamos el objeto de audio UNA SOLA VEZ y lo guardamos en la referencia
       if (!countdownAudioRef.current) {
         countdownAudioRef.current = new Audio('/sounds/espera.mp3');
       }
 
-      // Bucle de la cuenta regresiva
       for (let i = 10; i > 0; i--) {
         setCountdown(i);
-
         if (countdownAudioRef.current) {
-          // 2. Reiniciamos el sonido al principio y lo reproducimos
           countdownAudioRef.current.currentTime = 0;
           countdownAudioRef.current.play();
         }
-
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
       setCountdown(null);
 
-      // 3. Detenemos el sonido del conteo definitivamente
       if (countdownAudioRef.current) {
         countdownAudioRef.current.pause();
         countdownAudioRef.current.currentTime = 0;
       }
 
-      // Preparamos el cuerpo de la solicitud con los puestos manuales definidos por variable
+      // --- CAMBIO: Se envían los 5 puestos al backend ---
       const requestBody = {
         cantidadGanadores: cantidadNumerica,
-        primerPuestoManual: primerPuestoDefinido, // Usamos la variable constante
-        segundoPuestoManual: segundoPuestoDefinido, // Usamos la variable constante
+        primerPuestoManual: primerPuestoDefinido,
+        segundoPuestoManual: segundoPuestoDefinido,
+        tercerPuestoManual: tercerPuestoDefinido,
+        cuartoPuestoManual: cuartoPuestoDefinido,
+        quintoPuestoManual: quintoPuestoDefinido,
       };
 
       const response = await fetch('/api/realizar-sorteo', {
@@ -107,7 +111,6 @@ export default function SorteoPage() {
       setGanadores(data.ganadores);
       setShowConfetti(true);
 
-      // Reproducimos el sonido del ganador (este sí puede ser nuevo cada vez)
       new Audio('/sounds/ganador.mp3').play();
 
     } catch (err) {
@@ -152,8 +155,6 @@ export default function SorteoPage() {
                 min="1"
               />
             </div>
-
-            {/* Los campos para los puestos manuales YA NO ESTÁN VISIBLES AQUÍ */}
 
             <div style={styles.buttonGroup}>
               <button onClick={handleRealizarSorteo} disabled={isLoading} style={styles.button}>Sortear</button>
