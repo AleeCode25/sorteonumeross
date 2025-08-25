@@ -6,9 +6,17 @@ export async function POST(request: Request) {
   await dbConnect();
 
   try {
-    const { cantidadGanadores, primerPuestoManual, segundoPuestoManual } = await request.json();
+    // --- Se aceptan hasta 5 puestos manuales individuales ---
+    const {
+      cantidadGanadores,
+      primerPuestoManual,
+      segundoPuestoManual,
+      tercerPuestoManual,
+      cuartoPuestoManual,
+      quintoPuestoManual
+    } = await request.json();
 
-    // Validar la cantidad de ganadores
+    // Validar la cantidad total de ganadores
     if (
       typeof cantidadGanadores !== 'number' ||
       !Number.isInteger(cantidadGanadores) ||
@@ -20,58 +28,62 @@ export async function POST(request: Request) {
       );
     }
 
-    // Array para almacenar a los ganadores
+    // Array para almacenar a todos los ganadores
     const ganadores: number[] = [];
 
-    // --- Lógica para los puestos manuales ---
-    // Si se proporciona un primer puesto manual, lo agregamos y validamos
-    if (primerPuestoManual !== undefined && primerPuestoManual !== null) {
-      if (typeof primerPuestoManual !== 'number' || !Number.isInteger(primerPuestoManual)) {
+    // --- Lógica para procesar TODOS los puestos manuales que se reciban ---
+    const puestosManualesDefinidos = [
+      primerPuestoManual,
+      segundoPuestoManual,
+      tercerPuestoManual,
+      cuartoPuestoManual,
+      quintoPuestoManual
+    ].filter(p => p !== undefined && p !== null); // Filtra solo los puestos que fueron enviados
+
+    // Validar que no haya más puestos manuales que la cantidad total de ganadores
+    if (puestosManualesDefinidos.length > cantidadGanadores) {
         return NextResponse.json(
-          { message: 'El primer puesto manual debe ser un número entero.' },
+          { message: `No puedes definir ${puestosManualesDefinidos.length} ganadores manuales si solo se sortearán ${cantidadGanadores}.` },
           { status: 400 }
         );
-      }
-      ganadores.push(primerPuestoManual);
     }
 
-    // Si se proporciona un segundo puesto manual, lo agregamos y validamos
-    if (segundoPuestoManual !== undefined && segundoPuestoManual !== null) {
-      if (typeof segundoPuestoManual !== 'number' || !Number.isInteger(segundoPuestoManual)) {
+    // Validar que todos los puestos manuales proporcionados sean números enteros
+    for (const num of puestosManualesDefinidos) {
+      if (typeof num !== 'number' || !Number.isInteger(num)) {
         return NextResponse.json(
-          { message: 'El segundo puesto manual debe ser un número entero.' },
+          { message: 'Todos los puestos manuales definidos deben ser números enteros.' },
           { status: 400 }
         );
       }
-      // Asegurarse de que el segundo puesto no sea igual al primero (si ambos son manuales)
-      if (primerPuestoManual !== undefined && primerPuestoManual === segundoPuestoManual) {
-        return NextResponse.json(
-          { message: 'El primer y segundo puesto manual no pueden ser el mismo número.' },
-          { status: 400 }
-        );
-      }
-      ganadores.push(segundoPuestoManual);
     }
+
+    // Validar que no haya números duplicados en la lista manual
+    const manualesSinDuplicados = new Set(puestosManualesDefinidos);
+    if (manualesSinDuplicados.size !== puestosManualesDefinidos.length) {
+      return NextResponse.json(
+        { message: 'No puede haber números duplicados en los puestos manuales.' },
+        { status: 400 }
+      );
+    }
+
+    // Si todo es correcto, agregamos los números manuales a la lista de ganadores
+    ganadores.push(...puestosManualesDefinidos);
+
 
     // Calculamos cuántos ganadores ya tenemos definidos manualmente
     const ganadoresManualesCount = ganadores.length;
 
-    // Si la cantidad de ganadores manuales ya es igual o excede la cantidad total deseada, no necesitamos más
+    // Si la cantidad de ganadores manuales ya es igual a la cantidad total deseada, terminamos.
     if (ganadoresManualesCount >= cantidadGanadores) {
-      // Si tenemos más ganadores manuales de los que se pidieron, solo tomamos los primeros 'cantidadGanadores'
-      const finalGanadores = ganadores.slice(0, cantidadGanadores);
-      return NextResponse.json({ ganadores: finalGanadores }, { status: 200 });
+      return NextResponse.json({ ganadores }, { status: 200 });
     }
 
     // --- Lógica para obtener el resto de los ganadores de la base de datos ---
-    // 1. Obtener todos los números participantes de la base de datos
     const todosLosNumeros = await NumberModel.find({}).select('value -_id');
-
-    // Add type annotation for 'n' in map
     let numerosParticipantes: number[] = todosLosNumeros.map((n: { value: number }) => n.value);
 
     // Filtrar los números que ya fueron seleccionados manualmente
-    // Add type annotation for 'num' in filter
     numerosParticipantes = numerosParticipantes.filter((num: number) => !ganadores.includes(num));
 
     // Validar si hay suficientes participantes para los puestos restantes
@@ -83,13 +95,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // 2. Mezclar el array de números al azar (Algoritmo Fisher-Yates)
+    // Mezclar el array de números al azar (Algoritmo Fisher-Yates)
     for (let i = numerosParticipantes.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [numerosParticipantes[i], numerosParticipantes[j]] = [numerosParticipantes[j], numerosParticipantes[i]];
     }
 
-    // 3. Seleccionar los ganadores restantes del array ya mezclado
+    // Seleccionar los ganadores restantes del array ya mezclado
     const ganadoresRestantes = numerosParticipantes.slice(0, puestosRestantes);
 
     // Combinar los ganadores manuales con los ganadores aleatorios
