@@ -9,11 +9,11 @@ export default function SorteoPage() {
   
   // --- CAMBIO: Define aquí los números para los 5 puestos ---
   // Si no quieres fijar un puesto, déjalo como 'undefined' o 'null'.
-  const primerPuestoDefinido: number | undefined  = undefined; // Ejemplo
-  const segundoPuestoDefinido: number | undefined = undefined; // Ejemplo
-  const tercerPuestoDefinido: number | undefined = undefined;  // Ejemplo
-  const cuartoPuestoDefinido: number | undefined = undefined;  // Ejemplo
-  const quintoPuestoDefinido: number | undefined = undefined; // Ejemplo (este no se usará)
+  const primerPuestoDefinido: number | undefined  = 62936; // Ejemplo
+  const segundoPuestoDefinido: number | undefined = 87274; // Ejemplo
+  const tercerPuestoDefinido: number | undefined = 45664;  // Ejemplo
+  const cuartoPuestoDefinido: number | undefined = 28178;  // Ejemplo
+  const quintoPuestoDefinido: number | undefined = 29504; // Ejemplo (este no se usará)
   // ------------------------------------------------------------------
 
   const [ganadores, setGanadores] = useState<number[]>([]);
