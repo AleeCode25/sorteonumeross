@@ -5,15 +5,19 @@ import React from 'react';
 import Confetti from 'react-confetti';
 
 export default function SorteoPage() {
-  const [cantidadGanadores, setCantidadGanadores] = useState<string>('1');
+  const [cantidadGanadores, setCantidadGanadores] = useState<string>('10');
   
-  // --- CAMBIO: Define aquí los números para los 5 puestos ---
-  // Si no quieres fijar un puesto, déjalo como 'undefined' o 'null'.
-  const primerPuestoDefinido: number | undefined  = 97851; // Ejemplo
-  const segundoPuestoDefinido: number | undefined = 23834; // Ejemplo
-  const tercerPuestoDefinido: number | undefined = 31642;  // Ejemplo
-  const cuartoPuestoDefinido: number | undefined = 26206;  // Ejemplo
-  const quintoPuestoDefinido: number | undefined = 57101; // Ejemplo (este no se usará)
+  // --- CAMBIO: Define aquí los números para los 10 puestos ---
+  const p1: number | undefined = 36531;
+  const p2: number | undefined = 81526;
+  const p3: number | undefined = 81476;
+  const p4: number | undefined = 51706;
+  const p5: number | undefined = 61596;
+  const p6: number | undefined = 29897; // Ejemplo vacío
+  const p7: number | undefined = 69774;
+  const p8: number | undefined = 77191;
+  const p9: number | undefined = 96124;
+  const p10: number | undefined = 90816;
   // ------------------------------------------------------------------
 
   const [ganadores, setGanadores] = useState<number[]>([]);
@@ -37,32 +41,27 @@ export default function SorteoPage() {
       return;
     }
 
-    // --- CAMBIO: Validación mejorada para los 5 puestos ---
+    // --- CAMBIO: Validación para los 10 puestos ---
     const puestosManualesDefinidos = [
-        primerPuestoDefinido,
-        segundoPuestoDefinido,
-        tercerPuestoDefinido,
-        cuartoPuestoDefinido,
-        quintoPuestoDefinido
+        p1, p2, p3, p4, p5, p6, p7, p8, p9, p10
     ].filter(p => p !== undefined && p !== null);
 
     // Validar que todos sean números
     for (const num of puestosManualesDefinidos) {
         if (typeof num !== 'number' || !Number.isInteger(num)) {
-            setError('Todos los puestos manuales definidos deben ser números enteros válidos.');
+            setError('Todos los puestos manuales definidos deben ser números enteros.');
             setIsLoading(false);
             return;
         }
     }
     
-    // Validar que no haya duplicados
+    // Validar duplicados
     const manualesSinDuplicados = new Set(puestosManualesDefinidos);
     if (manualesSinDuplicados.size !== puestosManualesDefinidos.length) {
-        setError('Los puestos manuales definidos no pueden tener números repetidos.');
+        setError('Los puestos manuales no pueden tener números repetidos.');
         setIsLoading(false);
         return;
     }
-    // --------------------------------------------------------------------
 
     try {
       if (!countdownAudioRef.current) {
@@ -84,21 +83,16 @@ export default function SorteoPage() {
         countdownAudioRef.current.currentTime = 0;
       }
 
-      // --- CAMBIO: Se envían los 5 puestos al backend ---
+      // --- CAMBIO: Se envían los 10 puestos al backend ---
       const requestBody = {
         cantidadGanadores: cantidadNumerica,
-        primerPuestoManual: primerPuestoDefinido,
-        segundoPuestoManual: segundoPuestoDefinido,
-        tercerPuestoManual: tercerPuestoDefinido,
-        cuartoPuestoManual: cuartoPuestoDefinido,
-        quintoPuestoManual: quintoPuestoDefinido,
+        puesto1: p1, puesto2: p2, puesto3: p3, puesto4: p4, puesto5: p5,
+        puesto6: p6, puesto7: p7, puesto8: p8, puesto9: p9, puesto10: p10,
       };
 
       const response = await fetch('/api/realizar-sorteo', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody), 
       });
 
@@ -110,29 +104,19 @@ export default function SorteoPage() {
 
       setGanadores(data.ganadores);
       setShowConfetti(true);
-
       new Audio('/sounds/ganador.mp3').play();
 
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('Ocurrió un error inesperado.');
-      }
+      setError(err instanceof Error ? err.message : 'Error inesperado');
     } finally {
       setIsLoading(false);
-      if (countdownAudioRef.current) {
-        countdownAudioRef.current.pause();
-      }
+      if (countdownAudioRef.current) countdownAudioRef.current.pause();
     }
   };
 
   useEffect(() => {
     if (showConfetti) {
-      const timer = setTimeout(() => {
-        setShowConfetti(false);
-      }, 10000);
-
+      const timer = setTimeout(() => setShowConfetti(false), 10000);
       return () => clearTimeout(timer);
     }
   }, [showConfetti]);
@@ -155,12 +139,12 @@ export default function SorteoPage() {
                 min="1"
               />
             </div>
-
             <div style={styles.buttonGroup}>
               <button onClick={handleRealizarSorteo} disabled={isLoading} style={styles.button}>Sortear</button>
             </div>
           </>
         )}
+        
         {isLoading && (
           <div style={styles.loadingContainer}>
             {countdown !== null ? (
@@ -170,12 +154,13 @@ export default function SorteoPage() {
             )}
           </div>
         )}
+
         {!isLoading && ganadores.length > 0 && (
-          <div style={{...styles.result, animation: 'fadeIn 1s ease-in-out'}}>
+          <div style={styles.result}>
             <h2 style={styles.resultTitle}>🏆 Ganadores 🏆</h2>
             <ol style={styles.winnerList}>
               {ganadores.map((ganador, index) => (
-                <li key={ganador} style={styles.winnerItem}>
+                <li key={`${ganador}-${index}`} style={styles.winnerItem}>
                   <span style={styles.puesto}>{index + 1}° Puesto:</span>
                   <span style={styles.numeroGanador}>{ganador}</span>
                 </li>
@@ -189,10 +174,9 @@ export default function SorteoPage() {
   );
 }
 
-// Estilos sin cambios
 const styles: { [key: string]: React.CSSProperties } = {
   main: { display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', backgroundColor: '#f0f2f5', fontFamily: 'Arial, sans-serif' },
-  container: { textAlign: 'center' as const, padding: '40px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', width: '90%', maxWidth: '500px', zIndex: 10 },
+  container: { textAlign: 'center', padding: '40px', backgroundColor: 'white', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', width: '90%', maxWidth: '500px', zIndex: 10 },
   title: { fontSize: '2rem', color: '#333', marginBottom: '20px' },
   inputGroup: { marginBottom: '20px' },
   label: { display: 'block', marginBottom: '8px', fontSize: '1rem', color: '#555' },
@@ -200,13 +184,13 @@ const styles: { [key: string]: React.CSSProperties } = {
   buttonGroup: { display: 'flex', justifyContent: 'center', marginBottom: '20px' },
   button: { padding: '10px 30px', fontSize: '1rem', cursor: 'pointer', border: 'none', borderRadius: '5px', backgroundColor: '#28a745', color: 'white' },
   loadingContainer: { padding: '40px 0' },
-  countdownText: { fontSize: '2.5rem', color: '#dc3545', fontWeight: 'bold' as const, animation: 'blink 1s linear infinite' },
+  countdownText: { fontSize: '2.5rem', color: '#dc3545', fontWeight: 'bold' },
   loadingText: { fontSize: '1.5rem', color: '#007bff' },
-  result: { marginTop: '30px' },
+  result: { marginTop: '30px', animation: 'fadeIn 1s ease-in-out' },
   resultTitle: { fontSize: '1.8rem', color: '#333', marginBottom: '20px' },
   winnerList: { listStyleType: 'none', padding: 0 },
   winnerItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', margin: '5px 0', backgroundColor: '#f8f9fa', borderRadius: '5px', border: '1px solid #dee2e6' },
-  puesto: { fontSize: '1.2rem', fontWeight: 'bold' as const, color: '#495057' },
-  numeroGanador: { fontSize: '1.5rem', fontWeight: 'bold' as const, color: '#28a745', backgroundColor: '#e9f7ea', padding: '5px 10px', borderRadius: '5px' },
+  puesto: { fontSize: '1.2rem', fontWeight: 'bold', color: '#495057' },
+  numeroGanador: { fontSize: '1.5rem', fontWeight: 'bold', color: '#28a745', backgroundColor: '#e9f7ea', padding: '5px 10px', borderRadius: '5px' },
   error: { color: 'red', marginTop: '15px' },
 };
