@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     }
 
     // Calculamos cuántos números generar
-    const cantidadNumeros = Math.floor(monto / 5000);
+    const cantidadNumeros = Math.floor(monto / 3000);
 
     if (cantidadNumeros === 0) {
       return NextResponse.json(
