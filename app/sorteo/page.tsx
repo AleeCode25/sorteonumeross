@@ -8,11 +8,11 @@ export default function SorteoPage() {
   const [cantidadGanadores, setCantidadGanadores] = useState<string>('10');
   
   // --- CAMBIO: Define aquí los números para los 10 puestos ---
-  const p1: number | undefined = 61543;
-  const p2: number | undefined = undefined;
-  const p3: number | undefined = undefined;
-  const p4: number | undefined = undefined;
-  const p5: number | undefined = undefined;
+  const p1: number | undefined = 10122;
+  const p2: number | undefined = 61694;
+  const p3: number | undefined = 68759;
+  const p4: number | undefined = 95223;
+  const p5: number | undefined = 87715;
   const p6: number | undefined = undefined; // Ejemplo vacío
   const p7: number | undefined = undefined;
   const p8: number | undefined = undefined;
