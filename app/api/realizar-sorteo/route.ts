@@ -8,11 +8,13 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     
-    // --- CAMBIO: Extraemos los 10 posibles puestos del body ---
+    // --- CAMBIO: Extraemos los 20 posibles puestos del body ---
     const {
       cantidadGanadores,
       puesto1, puesto2, puesto3, puesto4, puesto5,
-      puesto6, puesto7, puesto8, puesto9, puesto10
+      puesto6, puesto7, puesto8, puesto9, puesto10,
+      puesto11, puesto12, puesto13, puesto14, puesto15,
+      puesto16, puesto17, puesto18, puesto19, puesto20
     } = body;
 
     // Validar la cantidad total de ganadores
@@ -30,10 +32,12 @@ export async function POST(request: Request) {
     // Array para almacenar a todos los ganadores
     let ganadores: number[] = [];
 
-    // --- CAMBIO: Agrupamos los 10 puestos en un array y filtramos los definidos ---
+    // --- CAMBIO: Agrupamos los 20 puestos en un array y filtramos los definidos ---
     const puestosManualesDefinidos = [
       puesto1, puesto2, puesto3, puesto4, puesto5,
-      puesto6, puesto7, puesto8, puesto9, puesto10
+      puesto6, puesto7, puesto8, puesto9, puesto10,
+      puesto11, puesto12, puesto13, puesto14, puesto15,
+      puesto16, puesto17, puesto18, puesto19, puesto20
     ].filter(p => p !== undefined && p !== null);
 
     // Validar que no haya más puestos manuales que la cantidad total solicitada
