@@ -5,19 +5,29 @@ import React from 'react';
 import Confetti from 'react-confetti';
 
 export default function SorteoPage() {
-  const [cantidadGanadores, setCantidadGanadores] = useState<string>('10');
+  const [cantidadGanadores, setCantidadGanadores] = useState<string>('20');
   
-  // --- CAMBIO: Define aquí los números para los 10 puestos ---
-  const p1: number | undefined = 92481;
-  const p2: number | undefined = 37891;
-  const p3: number | undefined = 55534;
-  const p4: number | undefined = 19731;
-  const p5: number | undefined = 36573;
-  const p6: number | undefined = undefined; // Ejemplo vacío
-  const p7: number | undefined = undefined;
-  const p8: number | undefined = undefined;
-  const p9: number | undefined = undefined;
-  const p10: number | undefined = undefined;
+  // --- CAMBIO: Define aquí los números para los 20 puestos ---
+  const p1: number | undefined = 81708;
+  const p2: number | undefined = 91356;
+  const p3: number | undefined = 47553;
+  const p4: number | undefined = 25022;
+  const p5: number | undefined = 77341;
+  const p6: number | undefined = 65805; // Ejemplo vacío
+  const p7: number | undefined = 35245;
+  const p8: number | undefined = 29248;
+  const p9: number | undefined = 23767;
+  const p10: number | undefined = 56073;
+  const p11: number | undefined = 33174;
+  const p12: number | undefined = 99011;
+  const p13: number | undefined = 51198;
+  const p14: number | undefined = 52504;
+  const p15: number | undefined = 51321;
+  const p16: number | undefined = 12442;
+  const p17: number | undefined = 92552;
+  const p18: number | undefined = 21241;
+  const p19: number | undefined = 88356;
+  const p20: number | undefined = 89604;
   // ------------------------------------------------------------------
 
   const [ganadores, setGanadores] = useState<number[]>([]);
@@ -41,9 +51,10 @@ export default function SorteoPage() {
       return;
     }
 
-    // --- CAMBIO: Validación para los 10 puestos ---
+    // --- CAMBIO: Validación para los 20 puestos ---
     const puestosManualesDefinidos = [
-        p1, p2, p3, p4, p5, p6, p7, p8, p9, p10
+        p1, p2, p3, p4, p5, p6, p7, p8, p9, p10,
+        p11, p12, p13, p14, p15, p16, p17, p18, p19, p20
     ].filter(p => p !== undefined && p !== null);
 
     // Validar que todos sean números
@@ -83,11 +94,13 @@ export default function SorteoPage() {
         countdownAudioRef.current.currentTime = 0;
       }
 
-      // --- CAMBIO: Se envían los 10 puestos al backend ---
+      // --- CAMBIO: Se envían los 20 puestos al backend ---
       const requestBody = {
         cantidadGanadores: cantidadNumerica,
         puesto1: p1, puesto2: p2, puesto3: p3, puesto4: p4, puesto5: p5,
         puesto6: p6, puesto7: p7, puesto8: p8, puesto9: p9, puesto10: p10,
+        puesto11: p11, puesto12: p12, puesto13: p13, puesto14: p14, puesto15: p15,
+        puesto16: p16, puesto17: p17, puesto18: p18, puesto19: p19, puesto20: p20,
       };
 
       const response = await fetch('/api/realizar-sorteo', {
