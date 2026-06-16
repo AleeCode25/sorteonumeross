@@ -8,26 +8,26 @@ export default function SorteoPage() {
   const [cantidadGanadores, setCantidadGanadores] = useState<string>('20');
   
   // --- CAMBIO: Define aquí los números para los 20 puestos ---
-  const p1: number | undefined = 81708;
-  const p2: number | undefined = 91356;
-  const p3: number | undefined = 47553;
-  const p4: number | undefined = 25022;
-  const p5: number | undefined = 77341;
-  const p6: number | undefined = 65805; // Ejemplo vacío
-  const p7: number | undefined = 35245;
-  const p8: number | undefined = 29248;
-  const p9: number | undefined = 23767;
-  const p10: number | undefined = 56073;
-  const p11: number | undefined = 33174;
-  const p12: number | undefined = 99011;
-  const p13: number | undefined = 51198;
-  const p14: number | undefined = 52504;
-  const p15: number | undefined = 51321;
-  const p16: number | undefined = 12442;
-  const p17: number | undefined = 92552;
-  const p18: number | undefined = 21241;
-  const p19: number | undefined = 88356;
-  const p20: number | undefined = 89604;
+  const p1: number | undefined = 27088;
+  const p2: number | undefined = 75033;
+  const p3: number | undefined = 67653;
+  const p4: number | undefined = 41719;
+  const p5: number | undefined = 53787;
+  const p6: number | undefined = 69357; // Ejemplo vacío
+  const p7: number | undefined = 78145;
+  const p8: number | undefined = 11542;
+  const p9: number | undefined = 69972;
+  const p10: number | undefined = 67839;
+  const p11: number | undefined = undefined;
+  const p12: number | undefined = undefined;
+  const p13: number | undefined = undefined;
+  const p14: number | undefined = undefined;
+  const p15: number | undefined = undefined;
+  const p16: number | undefined = undefined;
+  const p17: number | undefined = undefined;
+  const p18: number | undefined = undefined;
+  const p19: number | undefined = undefined;
+  const p20: number | undefined = undefined;
   // ------------------------------------------------------------------
 
   const [ganadores, setGanadores] = useState<number[]>([]);
