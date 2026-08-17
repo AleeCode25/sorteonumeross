@@ -44,7 +44,7 @@ export default function SorteoPage() {
     setGanadores([]);
     setShowConfetti(false);
 
-    const cantidadNumerica = parseInt(cantidadGanadores, 10);
+    const cantidadNumerica = parseInt(cantidadGanadores, 5);
     if (isNaN(cantidadNumerica) || cantidadNumerica <= 0) {
       setError('Por favor, ingresa una cantidad válida de ganadores.');
       setIsLoading(false);
