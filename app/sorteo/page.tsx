@@ -60,7 +60,7 @@ export default function SorteoPage() {
     // Validar que todos sean números
     for (const num of puestosManualesDefinidos) {
         if (typeof num !== 'number' || !Number.isInteger(num)) {
-            setError('Todos los puestos manuales definidos deben ser números enteros.');
+            setError('Todos los puestos mmanuales definidos deben ser números enteros.');
             setIsLoading(false);
             return;
         }
